@@ -30,7 +30,8 @@ fun main() {
         .map(String::toInt)
         .mapIndexed(::Pair)
         .partition { (index, _) -> index % 2 == 0 }
-        .let { (first, second) -> first.map { it.second }.sorted() to second.map { it.second }.sorted() }
+        .let { (first, second) -> first.map { it.second } to second.map { it.second } }
 
-    println("Part 1: ${left.zip(right).sumOf { (l, r) -> (l - r).absoluteValue }}")
+    println("Part 1: ${left.sorted().zip(right.sorted()).sumOf { (l, r) -> (l - r).absoluteValue }}")
+    println("Part 2: ${left.sumOf { l -> l * right.count { r -> r == l } }}")
 }
