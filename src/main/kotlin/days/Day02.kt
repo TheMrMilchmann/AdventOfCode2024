@@ -38,5 +38,11 @@ fun main() {
     fun part1(): Int =
         reports.count(List<Int>::isValidReport)
 
+    fun part2(): Int =
+        reports.count { it.indices.any { idx ->
+            it.mapIndexedNotNull { index, v -> if (index == idx) null else v }.isValidReport()
+        }}
+
     println("Part 1: ${part1()}")
+    println("Part 2: ${part2()}")
 }
