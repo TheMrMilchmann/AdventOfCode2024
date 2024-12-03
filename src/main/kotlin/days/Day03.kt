@@ -25,8 +25,27 @@ import utils.readInput
 
 fun main() {
     val data = readInput().joinToString(separator = "\n")
-        .let { str -> "mul\\((\\d{1,3}),(\\d{1,3})\\)".toRegex().findAll(str).map { it.groupValues[1] to it.groupValues[2] } }
-        .toList()
+        .let { str -> "do(n't)?\\(\\)|mul\\((\\d{1,3}),(\\d{1,3})\\)".toRegex().findAll(str) }
+        .map {
+            when (it.groupValues[0]) {
+                "do()" -> Instruction.Do
+                "don't()" -> Instruction.Dont
+                else -> Instruction.Mul(it.groupValues[2].toInt(), it.groupValues[3].toInt())
+            }
+        }
 
-    println("Part 1: ${data.sumOf { (a, b) -> a.toInt() * b.toInt() }}")
+    data class Acc(val `do`: Boolean, val value: Int)
+
+    println("Part 1: ${data.sumOf { instr -> if (instr is Instruction.Mul) instr.a * instr.b else 0 }}")
+    println("Part 2: ${data.fold(initial = Acc(true, 0)) { acc, it -> when (it) {
+        Instruction.Do -> acc.copy(`do` = true)
+        Instruction.Dont -> acc.copy(`do` = false)
+        is Instruction.Mul -> if (acc.`do`) acc.copy(value = acc.value + it.a * it.b) else acc
+    }}.value}")
+}
+
+private sealed class Instruction {
+    data class Mul(val a: Int, val b: Int) : Instruction()
+    data object Do : Instruction()
+    data object Dont : Instruction()
 }
