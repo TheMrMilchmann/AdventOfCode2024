@@ -131,6 +131,20 @@ class Grid<E>(
         }
     }
 
+    fun containsAll(origin: GridPos, shift: (GridPos) -> GridPos?, elements: List<E>): Boolean {
+        if (elements[0] != this[origin]) return false
+
+        var cursor = shift(origin)
+        for (i in 1 until elements.size) {
+            if (cursor == null) return false
+            if (elements[i] != this[cursor]) return false
+
+            cursor = shift(cursor)
+        }
+
+        return true
+    }
+
     operator fun contains(pos: GridPos): Boolean =
         pos.x in horizontalIndices && pos.y in verticalIndices
 
@@ -184,6 +198,18 @@ class Grid<E>(
 
     fun shiftDownWrapped(pos: GridPos): GridPos =
         pos.copy(y = (pos.y + 1).let { y -> if (y in verticalIndices) y else verticalIndices.first() })
+
+    fun shiftUpLeft(pos: GridPos): GridPos? =
+        shiftUp(pos)?.let(::shiftLeft)
+
+    fun shiftUpRight(pos: GridPos): GridPos? =
+        shiftUp(pos)?.let(::shiftRight)
+
+    fun shiftDownLeft(pos: GridPos): GridPos? =
+        shiftDown(pos)?.let(::shiftLeft)
+
+    fun shiftDownRight(pos: GridPos): GridPos? =
+        shiftDown(pos)?.let(::shiftRight)
 
     override fun iterator(): Iterator<E> =
         grid.iterator()
