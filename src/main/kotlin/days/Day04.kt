@@ -46,5 +46,17 @@ fun main() {
                 c
             }
 
+    fun part2() =
+        data.positions
+            .filter { data[it] == 'M' || data[it] == 'S' }
+            .count {
+                val topRight = it.copy(x = it.x + 2)
+                if (topRight !in data) return@count false
+
+                (data.containsAll(it, data::shiftDownRight, listOf('M', 'A', 'S')) || data.containsAll(it, data::shiftDownRight, listOf('S', 'A', 'M')))
+                    && (data.containsAll(topRight, data::shiftDownLeft, listOf('M', 'A', 'S')) || data.containsAll(topRight, data::shiftDownLeft, listOf('S', 'A', 'M')))
+            }
+
     println("Part 1: ${part1()}")
+    println("Part 2: ${part2()}")
 }
