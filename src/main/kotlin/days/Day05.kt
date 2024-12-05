@@ -36,5 +36,22 @@ fun main() {
             .filter { update -> rules.filter(update::containsAll).all { (r1, r2) -> update.indexOf(r1) < update.indexOf(r2) } }
             .sumOf { update -> update[update.size / 2] }
 
+    fun part2(): Int =
+        updates
+            .filter { update -> !rules.filter(update::containsAll).all { (r1, r2) -> update.indexOf(r1) < update.indexOf(r2) } }
+            .map { update ->
+                update.sortedWith { l, r ->
+                    val rule = rules.find { l in it && r in it }
+
+                    when {
+                        l == r -> 0
+                        rule != null -> rule.indexOf(l).compareTo(rule.indexOf(r))
+                        else -> 1
+                    }
+                }
+            }
+            .sumOf { update -> update[update.size / 2] }
+
     println("Part 1: ${part1()}")
+    println("Part 2: ${part2()}")
 }
