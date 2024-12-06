@@ -21,41 +21,52 @@
  */
 package days
 
-import utils.Direction
-import utils.GridPos
-import utils.readInput
-import utils.toGrid
+import utils.*
 
 fun main() {
     val data = readInput().map { it.toCharArray().toList() }.toGrid()
 
-    fun findPath(): List<GridPos> {
-        var pos = data.positions.find { data[it] == '^' }!!
+    data class PathNode(val pos: GridPos, val dir: Direction)
+
+    fun Grid<Char>.findPath(): List<PathNode>? {
+        var pos = positions.find { this[it] == '^' }!!
         var dir = Direction.N
 
+        val visited = mutableSetOf<PathNode>()
+
         return buildList {
-            add(pos)
+            add(PathNode(pos, dir).also(visited::add))
 
             do {
                 val shift = when (dir) {
-                    Direction.N -> data::shiftUp
-                    Direction.E -> data::shiftRight
-                    Direction.S -> data::shiftDown
-                    Direction.W -> data::shiftLeft
+                    Direction.N -> ::shiftUp
+                    Direction.E -> ::shiftRight
+                    Direction.S -> ::shiftDown
+                    Direction.W -> ::shiftLeft
                 }
 
                 val next = shift(pos) ?: break
 
-                if (data[next] == '#') {
+                if (this@findPath[next] == '#') {
                     dir = Direction.entries[((dir.ordinal + Direction.entries.size) - 1) % Direction.entries.size]
                     continue
                 }
 
                 pos = next
-                add(pos)
+                val pathNode = PathNode(pos, dir)
+                if (pathNode in visited) return null
+                add(PathNode(pos, dir).also(visited::add))
             } while (true)
         }
     }
 
-    println("Part 1: ${findPath().distinct().size}")
+    fun part2(): Int =
+        data.findPath()!!
+            .map(PathNode::pos)
+            .distinct()
+            .let { path -> path.filter { it != path.first() } }
+            .count { data.map { pos, v -> if (pos == it) '#' else v }.findPath() == null }
+
+    println("Part 1: ${data.findPath()!!.map(PathNode::pos).distinct().size}")
+    println("Part 2: ${part2()}")
 }
