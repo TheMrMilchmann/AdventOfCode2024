@@ -30,12 +30,22 @@ fun main() {
             res.toLong() to vals.trim().split("\\s+".toRegex()).map(String::toLong)
         }
 
-    fun isValid(res: Long, vals: List<Long>): Boolean = when {
-        vals.size == 1 -> res == vals.single()
-        (res % vals.last() == 0L) && isValid(res / vals.last(), vals.dropLast(1)) -> true
-        isValid(res - vals.last(), vals.dropLast(1)) -> true
-        else -> false
+    fun isValid(res: Long, vals: List<Long>, p2: Boolean): Boolean {
+        val x = vals.last()
+        return when {
+            vals.size == 1 -> res == x
+            (res % x == 0L) && isValid(res / x, vals.dropLast(1), p2) -> true
+            (res >= x) && isValid(res - x, vals.dropLast(1), p2) -> true
+            p2 -> {
+                val resString = res.toString()
+                val xString = x.toString()
+
+                resString.length > xString.length && resString.endsWith(xString) && isValid(resString.dropLast(xString.length).toLong(), vals.dropLast(1), true)
+            }
+            else -> false
+        }
     }
 
-    println("Part 1: ${data.filter { (res, vals) -> isValid(res, vals) }.sumOf { (res, _) -> res }}")
+    println("Part 1: ${data.filter { (res, vals) -> isValid(res, vals, p2 = false) }.sumOf { (res, _) -> res }}")
+    println("Part 2: ${data.filter { (res, vals) -> isValid(res, vals, p2 = true) }.sumOf { (res, _) -> res }}")
 }
