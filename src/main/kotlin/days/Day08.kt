@@ -39,21 +39,31 @@ fun main() {
             valueTransform = { (_, pos) -> pos }
         )
 
-    fun findAntinodes(): List<GridPos> = buildList {
+    fun findAntinodes(p2: Boolean = false): Set<GridPos> = buildSet {
         for ((_, positions) in antennas) {
             for (p0 in positions) {
                 for (p1 in positions) {
                     if (p0 == p1) continue
+                    if (p2) add(p0)
 
-                    val dX = p1.x - p0.x.intValue
-                    val dY = p1.y - p0.y.intValue
+                    val dX = p1.x.intValue - p0.x.intValue
+                    val dY = p1.y.intValue - p0.y.intValue
 
-                    val pos = GridPos(p1.x + dX.intValue, p1.y + dY.intValue)
-                    if (pos in data) add(pos)
+                    var pos = GridPos(p1.x + dX, p1.y + dY)
+                    var i = 2
+
+                    while (pos in data) {
+                        add(pos)
+                        if (!p2) break
+
+                        pos = GridPos(p1.x + dX * i, p1.y + dY * i)
+                        i++
+                    }
                 }
             }
         }
     }
 
-    println("Part 1: ${findAntinodes().distinct().size}")
+    println("Part 1: ${findAntinodes(p2 = false).size}")
+    println("Part 2: ${findAntinodes(p2 = true).size}")
 }
