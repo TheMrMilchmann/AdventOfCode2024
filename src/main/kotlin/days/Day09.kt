@@ -51,26 +51,90 @@ fun main() {
 
     val index = bIndex.toMutableMap()
 
-    val compact = buildList(capacity = fs.size) {
-        var tIdx = index.keys.max()
-        var tO = index[tIdx]!!.size
+    fun part1(): Long {
+        val compact = buildList(capacity = fs.size) {
+            var tIdx = index.keys.max()
+            var tO = index[tIdx]!!.size
 
-        for (i in fs.indices) {
-            if (i >= index[tIdx]!!.offset + tO) break
+            for (i in fs.indices) {
+                if (i >= index[tIdx]!!.offset + tO) break
 
-            when (val b = fs[i]) {
-                null -> {
-                    if (tO == 0) {
-                        tIdx--
-                        tO = index[tIdx]!!.size
+                when (val b = fs[i]) {
+                    null -> {
+                        if (tO == 0) {
+                            tIdx--
+                            tO = index[tIdx]!!.size
+                        }
+
+                        add(fs[index[tIdx]!!.offset + --tO])
                     }
-
-                    add(fs[index[tIdx]!!.offset + --tO])
+                    else -> add(b)
                 }
-                else -> add(b)
             }
         }
+
+        return compact.withIndex().sumOf { (idx, v) -> if (v == null) 0 else idx * v.toLong() }
     }
 
-    println("Part 1: ${compact.withIndex().sumOf { (idx, v) -> if (v == null) 0 else idx * v.toLong() }}")
+    fun part2(): Long {
+        val compact = buildList(capacity = fs.size) {
+            val q = index.toList().sortedBy { (idx, _) -> idx }.reversed().toMutableList()
+
+            var hIdx = 0
+            var i = 0
+            while (i in fs.indices && q.isNotEmpty()) {
+                val b = fs[i]
+                when {
+                    b == null -> {
+                        var blockSize = fs.drop(i).takeWhile { it == null }.count()
+                        while (blockSize > 0) {
+                            val n = q.withIndex().firstOrNull { (_, v) -> v.second.size <= blockSize }
+                            if (n == null) {
+                                i += blockSize
+                                for (j in 0 until blockSize) add(null)
+                                break
+                            }
+
+                            val (nI, next) = n
+                            q.removeAt(nI)
+
+                            val (_, file) = next
+
+                            for (j in 0 until file.size) {
+                                add(fs[file.offset + j])
+                            }
+
+                            blockSize -= file.size
+                            i += file.size
+                        }
+                    }
+                    else -> {
+                        val f = index[hIdx] ?: break
+                        if (!q.removeIf { (idx, _) -> idx == hIdx }) {
+                            val blockSize = f.size
+                            i += blockSize
+                            for (j in 0 until blockSize) {
+                                add(null)
+                            }
+
+                            hIdx++
+                            continue
+                        }
+
+                        for (j in 0 until f.size) {
+                            add(fs[f.offset + j])
+                        }
+
+                        hIdx++
+                        i += f.size
+                    }
+                }
+            }
+        }
+
+        return compact.withIndex().sumOf { (idx, v) -> if (v == null) 0 else idx * v.toLong() }
+    }
+
+    println("Part 1: ${part1()}")
+    println("Part 2: ${part2()}")
 }
