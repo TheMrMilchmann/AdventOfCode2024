@@ -22,31 +22,33 @@
 package days
 
 import utils.*
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 fun main() {
     data class SlotMachine(
-        val dA: Pair<Int, Int>,
-        val dB: Pair<Int, Int>,
-        val prize: Pair<Int, Int>
+        val dA: Pair<Long, Long>,
+        val dB: Pair<Long, Long>,
+        val prize: Pair<Long, Long>
     )
 
     val data = readInput()
         .filter(String::isNotBlank)
         .windowed(size = 3, step = 3)
         .map { lines ->
-            val dA = lines[0].substringAfter("X+").trim().split(", Y+").map { it.trim().toInt() }.let { it[0] to it[1] }
-            val dB = lines[1].substringAfter("X+").trim().split(", Y+").map { it.trim().toInt() }.let { it[0] to it[1] }
-            val prize = lines[2].substringAfter("X=").trim().split(", Y=").map { it.trim().toInt() }.let { it[0] to it[1] }
+            val dA = lines[0].substringAfter("X+").trim().split(", Y+").map { it.trim().toLong() }.let { it[0] to it[1] }
+            val dB = lines[1].substringAfter("X+").trim().split(", Y+").map { it.trim().toLong() }.let { it[0] to it[1] }
+            val prize = lines[2].substringAfter("X=").trim().split(", Y=").map { it.trim().toLong() }.let { it[0] to it[1] }
             SlotMachine(dA, dB, prize)
         }
 
-    fun part1(): Int =
-        data.fold(initial = 0) { acc, s ->
-            val b = (s.dA.first * s.prize.second - s.dA.second * s.prize.first) / (s.dA.first * s.dB.second - s.dA.second * s.dB.first)
-            val a = (s.prize.first - b * s.dB.first) / s.dA.first
+    fun List<SlotMachine>.solve() = fold(initial = 0L) { acc, s ->
+        val b = ((s.dA.first * s.prize.second - s.dA.second * s.prize.first) / (s.dA.first * s.dB.second - s.dA.second * s.dB.first).toDouble()).toLong()
+        val a = ((s.prize.first - b * s.dB.first) / s.dA.first.toDouble()).toLong()
 
-            if (s.dA.second * a + s.dB.second * b == s.prize.second && s.dA.first * a + s.dB.first * b == s.prize.first) acc + (3 * a + b) else acc
-        }
+        if (s.dA.second * a + s.dB.second * b == s.prize.second && s.dA.first * a + s.dB.first * b == s.prize.first) acc + (3 * a + b) else acc
+    }
 
-    println("Part 1: ${part1()}")
+    println("Part 1: ${data.solve()}")
+    println("Part 2: ${data.map { it.copy(prize = it.prize.first + 10000000000000L to it.prize.second + 10000000000000L) }.solve()}")
 }
