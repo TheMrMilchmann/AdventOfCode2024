@@ -178,11 +178,17 @@ class Grid<E>(
     fun shiftLeft(pos: GridPos): GridPos? =
         (pos.x - 1).let { x -> if (x in horizontalIndices) pos.copy(x = x) else null }
 
+    fun shiftLeftUnbound(pos: GridPos): GridPos =
+        pos.copy(x = pos.x - 1)
+
     fun shiftLeftWrapped(pos: GridPos): GridPos =
         pos.copy(x = (pos.x - 1).let { x -> if (x in horizontalIndices) x else horizontalIndices.last() })
 
     fun shiftRight(pos: GridPos): GridPos? =
         (pos.x + 1).let { x -> if (x in horizontalIndices) pos.copy(x = x) else null }
+
+    fun shiftRightUnbound(pos: GridPos): GridPos =
+        pos.copy(x = pos.x + 1)
 
     fun shiftRightWrapped(pos: GridPos): GridPos =
         pos.copy(x = (pos.x + 1).let { x -> if (x in horizontalIndices) x else horizontalIndices.first() })
@@ -190,11 +196,17 @@ class Grid<E>(
     fun shiftUp(pos: GridPos): GridPos? =
         (pos.y - 1).let { y -> if (y in verticalIndices) pos.copy(y = y) else null }
 
+    fun shiftUpUnbound(pos: GridPos): GridPos =
+        pos.copy(y = pos.y - 1)
+
     fun shiftUpWrapped(pos: GridPos): GridPos =
         pos.copy(y = (pos.y - 1).let { y -> if (y in verticalIndices) y else verticalIndices.last() })
 
     fun shiftDown(pos: GridPos): GridPos? =
         (pos.y + 1).let { y -> if (y in verticalIndices) pos.copy(y = y) else null }
+
+    fun shiftDownUnbound(pos: GridPos): GridPos =
+        pos.copy(y = pos.y + 1)
 
     fun shiftDownWrapped(pos: GridPos): GridPos =
         pos.copy(y = (pos.y + 1).let { y -> if (y in verticalIndices) y else verticalIndices.first() })
