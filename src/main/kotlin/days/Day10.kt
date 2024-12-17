@@ -27,7 +27,7 @@ import utils.toGrid
 
 fun main() {
     val data = readInput().map { it.toCharArray().map(Char::digitToInt) }.toGrid()
-    val reachableEndsByPos = HashMap<GridPos, Set<GridPos>>(data.size)
+    val reachableEndsByPos = HashMap<GridPos, List<GridPos>>(data.size)
 
     val (ends, others) = data.positions.associateWith { data[it] }
         .entries
@@ -35,10 +35,11 @@ fun main() {
         .partition { it.value == 9 }
 
     for (end in ends) {
-        reachableEndsByPos[end.key] = setOf(end.key)
+        reachableEndsByPos[end.key] = listOf(end.key)
     }
 
-    var res = 0
+    var p1 = 0
+    var p2 = 0
 
     for ((pos, v) in others) {
         reachableEndsByPos[pos] =
@@ -47,8 +48,12 @@ fun main() {
                     (data.shiftRight(pos)?.takeIf { data[it] == v + 1 }?.let(reachableEndsByPos::get) ?: emptySet()) +
                     (data.shiftDown(pos)?.takeIf { data[it] == v + 1 }?.let(reachableEndsByPos::get) ?: emptySet())
 
-        if (v == 0) res += reachableEndsByPos[pos]!!.count()
+        if (v == 0) {
+            p1 += reachableEndsByPos[pos]!!.distinct().count()
+            p2 += reachableEndsByPos[pos]!!.count()
+        }
     }
 
-    println("Part 1: $res")
+    println("Part 1: $p1")
+    println("Part 2: $p2")
 }
