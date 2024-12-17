@@ -55,15 +55,28 @@ fun main() {
             regions.map(MutableList<GridPos>::toList)
         }
 
-    fun GridPos.getAdjacentPositions(): Set<GridPos> = buildSet {
-        add(data.shiftLeftUnbound(this@getAdjacentPositions))
-        add(data.shiftUpUnbound(this@getAdjacentPositions))
-        add(data.shiftRightUnbound(this@getAdjacentPositions))
-        add(data.shiftDownUnbound(this@getAdjacentPositions))
+    data class AdjacentPos(val pos: GridPos, val direction: Direction)
+
+    fun GridPos.getAdjacentPositions(): Set<AdjacentPos> = buildSet {
+        add(AdjacentPos(data.shiftLeftUnbound(this@getAdjacentPositions), Direction.W))
+        add(AdjacentPos(data.shiftUpUnbound(this@getAdjacentPositions), Direction.N))
+        add(AdjacentPos(data.shiftRightUnbound(this@getAdjacentPositions), Direction.E))
+        add(AdjacentPos(data.shiftDownUnbound(this@getAdjacentPositions), Direction.S))
     }
 
-    fun List<GridPos>.toPerimeter() =
-        flatMap { it.getAdjacentPositions() }.filter { it !in this }
+    fun Iterable<GridPos>.toPerimeter() =
+        flatMap { it.getAdjacentPositions() }.filter { (pos, _) -> pos !in this }
+
+    infix fun GridPos.shiftTo(dir: Direction) = when (dir) {
+        Direction.N -> data.shiftUpUnbound(this)
+        Direction.E -> data.shiftRightUnbound(this)
+        Direction.S -> data.shiftDownUnbound(this)
+        Direction.W -> data.shiftLeftUnbound(this)
+    }
+
+    fun Iterable<AdjacentPos>.toStraightLines() =
+        filter { (pos, dir) -> AdjacentPos(pos shiftTo Direction.entries[(dir.ordinal + 3) % Direction.entries.size], dir) !in this }
 
     println("Part 1: ${regions.sumOf { it.toPerimeter().size.toLong() * it.size }}")
+    println("Part 2: ${regions.sumOf { it.toPerimeter().toStraightLines().size * it.size }}")
 }
