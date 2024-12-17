@@ -32,18 +32,15 @@ fun main() {
         else -> listOf(value * 2024L)
     }
 
-    fun part1(): Int {
-        data class Key(val v: Long, val iterations: Int)
-        val cache = mutableMapOf<Key, Int>()
+    data class Key(val v: Long, val iterations: Int)
+    val cache = mutableMapOf<Key, Long>()
 
-        fun solve(value: Long, iterations: Int): Int {
-            if (iterations == 0) return 1
-            cache[Key(value, iterations)]?.let { return it }
-            return blink(value).sumOf { solve(it, iterations - 1) }.also { cache[Key(value, iterations)] = it }
-        }
-
-        return data.sumOf { solve(it, iterations = 25) }
+    fun solve(value: Long, iterations: Int): Long {
+        if (iterations == 0) return 1L
+        cache[Key(value, iterations)]?.let { return it }
+        return blink(value).sumOf { solve(it, iterations - 1) }.also { cache[Key(value, iterations)] = it }
     }
 
-    println("Part 1: ${part1()}")
+    println("Part 1: ${data.sumOf { solve(it, iterations = 25) }}")
+    println("Part 2: ${data.sumOf { solve(it, iterations = 75) }}")
 }
